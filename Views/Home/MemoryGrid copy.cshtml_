@@ -1,0 +1,26 @@
+@{
+    ViewData["Title"] = "Memory grid";
+}
+
+<h1 class="display-4">Memory Grid</h1>
+<div class="row text-center row-memory-grid">
+    <div class="col">00</div>
+    <div class="col">01</div>
+    <div class="col">02</div>
+    <div class="col">03</div>
+    <div class="w-100"></div>
+    <div class="col">04</div>
+    <div class="col">05</div>
+    <div class="col">06</div>
+    <div class="col">07</div>
+    <div class="w-100"></div>
+    <div class="col">08</div>
+    <div class="col">09</div>
+    <div class="col">10</div>
+    <div class="col">11</div>
+    <div class="w-100"></div>
+    <div class="col">12</div>
+    <div class="col">13</div>
+    <div class="col">14</div>
+    <div class="col">15</div>
+</div>

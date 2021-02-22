@@ -1,0 +1,33 @@
+@{
+    ViewData["Title"] = "Memory grid";
+}
+
+<h1 class="text-center">Memory Grid</h1>
+<div class="row">
+    <div class="col">
+        <table class="float-right">
+            <tbody>
+                <tr>
+                    <td><button id="grdBtn00" class="btn btn-dark grid-button">00</button></td>
+                    <td><button id="grdBtn01" class="btn btn-dark grid-button">01</button></td>
+                    <td><button id="grdBtn02" class="btn btn-dark grid-button">02</button></td>
+                    <td><button id="grdBtn03" class="btn btn-dark grid-button">03</button></td></tr><tr>
+                    <td><button id="grdBtn04" class="btn btn-dark grid-button">04</button></td>
+                    <td><button id="grdBtn05" class="btn btn-dark grid-button">05</button></td>
+                    <td><button id="grdBtn06" class="btn btn-dark grid-button">06</button></td>
+                    <td><button id="grdBtn07" class="btn btn-dark grid-button">07</button></td></tr><tr>
+                    <td><button id="grdBtn08" class="btn btn-dark grid-button">08</button></td>
+                    <td><button id="grdBtn09" class="btn btn-dark grid-button">09</button></td>
+                    <td><button id="grdBtn10" class="btn btn-dark grid-button">10</button></td>
+                    <td><button id="grdBtn11" class="btn btn-dark grid-button">11</button></td></tr><tr>
+                    <td><button id="grdBtn12" class="btn btn-dark grid-button">12</button></td>
+                    <td><button id="grdBtn13" class="btn btn-dark grid-button">13</button></td>
+                    <td><button id="grdBtn14" class="btn btn-dark grid-button">14</button></td>
+                    <td><button id="grdBtn15" class="btn btn-dark grid-button">15</button></td></tr></tbody>
+        </table>
+    </div>
+    <div class="col">
+        <textarea style="width: 200px; height: 200px;">
+        </textarea>    
+    </div>
+</div>
