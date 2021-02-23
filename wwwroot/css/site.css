@@ -12,12 +12,6 @@ a {
   color: #0366d6;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;
@@ -68,21 +62,4 @@ button.accept-policy {
   width: 100%;
   white-space: nowrap;
   line-height: 60px; /* Vertically center the text there */
-}
-
-.grid-button{
-  width: 55px;
-  height: 55px;
-}
-
-.row-memory-grid{
-  background: linear-gradient(38deg, rgb(255, 255, 255), rgb(80, 80, 80));
-
-}
-
-.row-memory-grid .col
-{
-  padding-top: .75rem;
-  padding-bottom: .75rem;
-  border: 1px solid rgb(39, 39, 39);
 }

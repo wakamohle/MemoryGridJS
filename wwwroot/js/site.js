@@ -3,12 +3,18 @@
 
 function initMemoryGrid() {
 
-    var BTN_PREFIX = "grdBtn";
+    var BTN_ID_PREFIX = "grdBtn";
+
     var NWLN = "\n";
+
     var BASE_CLASS = "btn-dark";
     var ERR_CLASS = "btn-danger";
     var OK_CLASS = "btn-success";
     var FLASH_CLASS = "btn-info";
+
+    var BTNGRID_TAG = '<div class="btn-group-vertical"></div>';
+    var BTNROW_TAG = '<div class="btn-group"></div>';
+    var BTN_TAG = '<button class="btn"></button>';
 
     var allButtons;
     var requiredSequence;
@@ -23,17 +29,74 @@ function initMemoryGrid() {
     var elmId = (elm) =>
         typeof (elm) === typeof (undefined) ?
             ""
-            : elm.attr("id").replace(BTN_PREFIX, "");
+            : elm.attr("id").replace(BTN_ID_PREFIX, "");
 
     var memGridParameters = {
-        gridRows:4,
-        gridColumns:4,
-        toMemorize: 3,
+        gridContainerID: "memoryGridContainer",
+        gridRows: 4,
+        gridColumns: 4,
+        btnWidth: "100px",
+        btnHeight: "100px",
         showBtnText: false,
         flashTime: 500,
         flashDelay: 500,
-        flashes: 2
+        flashes: 2,
+        toMemorize: 3
     };
+
+    function initializeGrid() {
+        //Extract parameters
+        let gridContainerID = memGridParameters.gridContainerID;
+        let btnWidth = memGridParameters.btnWidth;
+        let btnHeight = memGridParameters.btnHeight;
+        let gridRows = memGridParameters.gridRows;
+        let gridColumns = memGridParameters.gridColumns;
+        
+        //If grid container ID is not valid, throw error
+        if (typeof gridContainerID !== typeof String()) {
+            throw "Invalid grid container ID"
+        }
+
+        //Initialize container object
+        let grdContainer = $("#" + gridContainerID);
+        //If grid container ID is not valid, throw error
+        if (grdContainer.get().length == 0) {
+            throw "Object " + gridContainerID + " does not exist"
+        }
+        //Global index for buttons
+        let btnIdx = 0;
+        //Initialize button grid object
+        let btnGrid = $(BTNGRID_TAG);
+        //Delete all elements in the container
+        grdContainer.empty();
+        //Add button grid to container
+        grdContainer.append(btnGrid);
+
+
+        //Build button rows
+        for (let btnRwIdx = gridRows; btnRwIdx > 0; --btnRwIdx) {
+            //Initialize button row
+            let btnRow = $(BTNROW_TAG);
+            //Build buttons for each column in the row
+            for (let btnClIdx = gridColumns; btnClIdx > 0; --btnClIdx) {
+                //Initialize individual grid button
+                let memBtn = $(BTN_TAG)
+                    .prop("id", BTN_ID_PREFIX + (btnIdx++).toString().padStart(2, 0)) //Set button id
+                    .addClass(BASE_CLASS) //Set default appearence
+                    .width(btnWidth)
+                    .height(btnHeight);
+                //Add button object to the row
+                btnRow.append(memBtn);
+            }
+            //Add finished row to the grid
+            btnGrid.append(btnRow);
+        }
+
+        //Initialize allButtons array for easy access
+        allButtons = grdContainer.find("[id^=" + BTN_ID_PREFIX + "]");
+
+    }
+
 
     function initRequiredSequence() {
         let tmpAllBtn = allButtons.slice();
@@ -198,14 +261,6 @@ function initMemoryGrid() {
 
     }
 
-    function initHandler() {
-        allButtons = $("[id^=" + BTN_PREFIX + "]");
-        setButtonsLabel();
-        clearControls();
-        addButtonListeners();
-        initRequiredSequence();
-    }
-
     function setButtonsLabel() {
         let shwTxt = memGridParameters.showBtnText;
         $(allButtons).text(
@@ -214,6 +269,15 @@ function initMemoryGrid() {
                     btnIdx.toString().padStart(2, 0) :
                     "");
 
+    }
+
+    function initHandler() {
+
+        initializeGrid();
+        setButtonsLabel();
+        clearControls();
+        addButtonListeners();
+        initRequiredSequence();
     }
 
     initHandler();
