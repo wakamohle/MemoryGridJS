@@ -31,17 +31,22 @@ function initMemoryGrid() {
             ""
             : elm.attr("id").replace(BTN_ID_PREFIX, "");
 
+    var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
+    var disableHintButton = () => $("#btnHint").prop("disabled", true);
+    var disableCheckButton = () => $("#btnCheck").prop("disabled", true);
+
     var memGridParameters = {
         gridContainerID: "memoryGridContainer",
         gridRows: 4,
         gridColumns: 4,
         btnWidth: "100px",
         btnHeight: "100px",
-        showBtnText: false,
+        showBtnText: true,
         flashTime: 500,
         flashDelay: 500,
         flashes: 2,
-        toMemorize: 3
+        toMemorize: 3,
+        userCheckDelay: 750
     };
 
     function initializeGrid() {
@@ -51,7 +56,7 @@ function initMemoryGrid() {
         let btnHeight = memGridParameters.btnHeight;
         let gridRows = memGridParameters.gridRows;
         let gridColumns = memGridParameters.gridColumns;
-        
+
         //If grid container ID is not valid, throw error
         if (typeof gridContainerID !== typeof String()) {
             throw "Invalid grid container ID"
@@ -168,13 +173,20 @@ function initMemoryGrid() {
         flashRequiredSequence();
     }
 
-    function addButtonListeners() {
-        allButtons.off("click", memButtonClickHandler);
 
+    function addButtonListeners() {
+        //Re-enable buttons in case they were disabled
+        $("#btnReset").prop("disabled", false);
+        $("#btnHint").prop("disabled", false);
+        $("#btnCheck").prop("disabled", false);
+
+        //Prevent listener duplication
+        unlistenGridButtons();
         $("#btnReset").off("click", initHandler);
         $("#btnHint").off("click", hintHandler);
         $("#btnCheck").off("click", checkUserSequence);
 
+        //Add button listeners
         allButtons.click(memButtonClickHandler);
         $("#btnReset").click(initHandler);
         $("#btnHint").click(hintHandler);
@@ -234,13 +246,22 @@ function initMemoryGrid() {
     function memButtonClickHandler() {
         lgTx($(this).attr("id") + " was clicked" + NWLN);
         userSequence.push($(this));
+        if (userSequence.length == requiredSequence.length) {
+            let tmOut = setTimeout(timeUp, memGridParameters.userCheckDelay);
+            flashTimeouts.push(tmOut);
+        }
+    }
+
+    function timeUp() {
+        unlistenGridButtons();
+        disableCheckButton();
+        disableHintButton();
+        checkUserSequence();
     }
 
     function clearControls() {
         $("#logArea").text("");
         clearGridBtnStyle(allButtons);
-
-
     }
 
     function clearGridBtnStyle(grdBtn) {
