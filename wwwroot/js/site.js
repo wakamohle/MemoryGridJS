@@ -40,7 +40,6 @@ function initMemoryGrid() {
 
     var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
     var disableHintButton = () => $("#btnHint").prop("disabled", true);
-    var disableCheckButton = () => $("#btnCheck").prop("disabled", true);
     var getGameResultParams = (wasSuccess) =>
         wasSuccess
             ? { "class": WIN_GAME_CLASS, "html": WIN_GAME_HTML }
@@ -204,20 +203,17 @@ function initMemoryGrid() {
         //Re-enable buttons in case they were disabled
         $("#btnReset").prop("disabled", false);
         $("#btnHint").prop("disabled", false);
-        $("#btnCheck").prop("disabled", false);
 
         //Prevent listener duplication
         unlistenGridButtons();
         $("#btnReset").off("click", initHandler);
         $("#btnHint").off("click", hintHandler);
-        $("#btnCheck").off("click", checkUserSequence);
         $("#btnToggleLog").off("click", toggleLogArea);
 
         //Add button listeners
         allButtons.click(memButtonClickHandler);
         $("#btnReset").click(initHandler);
         $("#btnHint").click(hintHandler);
-        $("#btnCheck").click(checkUserSequence);
         $("#btnToggleLog").click(toggleLogArea);
 
     }
@@ -285,7 +281,6 @@ function initMemoryGrid() {
 
     function timeUp() {
         unlistenGridButtons();
-        disableCheckButton();
         disableHintButton();
         checkUserSequence();
     }
