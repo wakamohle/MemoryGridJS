@@ -3,10 +3,11 @@
 }
 
 <h1 class="text-center">Memory Grid</h1>
-<div class="row text-center">
+<div class="row">
     <div class="col">
         <div class="btn-group">
             <button id="btnReset" class="btn btn-primary">Reset</button>
+            <button id="btnToggleLog" class="btn btn-primary">Log</button>            
             <button id="btnHint" class="btn btn-primary">Hint</button>
             <button id="btnCheck" class="btn btn-primary">Check</button>
         </div>
@@ -17,7 +18,7 @@
         <p>Grid goes here</p>
     </div>
     <div class="col">
-        <textarea id="logArea" style="width: 200px; height: 200px; font-family: Courier New, monospace; font-size: 9pt;"></textarea>
+        <textarea id="logArea" class="form-control small d-none" readonly="readonly" rows="15" ></textarea>
     </div>
 </div>
 
