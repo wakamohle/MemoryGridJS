@@ -48,8 +48,8 @@ function initMemoryGrid() {
     var memGridParameters = {
         gridRows: 4,
         gridColumns: 4,
-        btnWidth: "90px",
-        btnHeight: "90px",
+        btnWidth: "15vmin",
+        btnHeight: "15vmin",
         showBtnText: true,
         flashTime: 500,
         flashDelay: 500,
