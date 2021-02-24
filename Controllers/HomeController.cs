@@ -16,7 +16,7 @@ namespace MemoryGrid.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return View("MemoryGrid");
         }
 
         public IActionResult MemoryGrid(){
