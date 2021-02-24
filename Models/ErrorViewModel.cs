@@ -1,5 +1,3 @@
-using System;
-
 namespace MemoryGrid.Models
 {
     public class ErrorViewModel
