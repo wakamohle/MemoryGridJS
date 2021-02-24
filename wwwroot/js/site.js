@@ -7,14 +7,20 @@ function initMemoryGrid() {
 
     var NWLN = "\n";
 
+    var WIN_GAME_CLASS = "alert-success";
+    var TRY_AGAIN_CLASS = "alert-danger";
     var BASE_CLASS = "btn-dark";
     var ERR_CLASS = "btn-danger";
     var OK_CLASS = "btn-success";
     var FLASH_CLASS = "btn-info";
 
+    var GAME_RESULT_TAG = '<div class="alert" role="alert"></div>';
     var BTNGRID_TAG = '<div class="btn-group-vertical"></div>';
     var BTNROW_TAG = '<div class="btn-group"></div>';
     var BTN_TAG = '<button class="btn"></button>';
+
+    var WIN_GAME_HTML = '<strong>Congratulations!</strong> You won this game!';
+    var TRY_AGAIN_HTML = '<strong>Try again!</strong> Sequence was not correct';
 
     var allButtons;
     var requiredSequence;
@@ -23,8 +29,8 @@ function initMemoryGrid() {
     var flashUsrSqnc;
     var flashTimeouts;
 
-
     var lgTx = (txt) => $("#logArea").append(txt);
+    var toggleLogArea = () => $("#logArea").toggleClass("d-none");
 
     var elmId = (elm) =>
         typeof (elm) === typeof (undefined) ?
@@ -34,6 +40,10 @@ function initMemoryGrid() {
     var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
     var disableHintButton = () => $("#btnHint").prop("disabled", true);
     var disableCheckButton = () => $("#btnCheck").prop("disabled", true);
+    var getGameResultParams = (wasSuccess) =>
+        wasSuccess
+            ? { "class": WIN_GAME_CLASS, "html": WIN_GAME_HTML }
+            : { "class": TRY_AGAIN_CLASS, "html": TRY_AGAIN_HTML };
 
     var memGridParameters = {
         gridContainerID: "memoryGridContainer",
@@ -44,10 +54,25 @@ function initMemoryGrid() {
         showBtnText: true,
         flashTime: 500,
         flashDelay: 500,
-        flashes: 2,
-        toMemorize: 3,
-        userCheckDelay: 750
+        flashes: 1,
+        toMemorize: 1,
+        userCheckDelay: 0
     };
+
+    function showGameResult(resultParams) {
+        let alertClass, alertHTML;
+        alertClass = resultParams["class"];
+        alertHTML = resultParams["html"];
+        let jQalert = $(GAME_RESULT_TAG)
+            .addClass(alertClass)
+            .append(alertHTML)
+            .alert();
+        $("alerts").append(jQalert);
+    }
+
+    function initializeGameResultContainer() {
+        $("alerts").empty();
+    }
 
     function initializeGrid() {
         //Extract parameters
@@ -185,12 +210,14 @@ function initMemoryGrid() {
         $("#btnReset").off("click", initHandler);
         $("#btnHint").off("click", hintHandler);
         $("#btnCheck").off("click", checkUserSequence);
+        $("#btnToggleLog").off("click", toggleLogArea);
 
         //Add button listeners
         allButtons.click(memButtonClickHandler);
         $("#btnReset").click(initHandler);
         $("#btnHint").click(hintHandler);
         $("#btnCheck").click(checkUserSequence);
+        $("#btnToggleLog").click(toggleLogArea);
 
     }
 
@@ -228,6 +255,9 @@ function initMemoryGrid() {
             lgTx("XX, " + elmId(reqSq) + " :(" + NWLN);
             markBtnErr(reqSq);
         }
+
+        let rslt = getGameResultParams(finalResult);
+        showGameResult(rslt);
 
     }
 
@@ -299,6 +329,7 @@ function initMemoryGrid() {
         clearControls();
         addButtonListeners();
         initRequiredSequence();
+        initializeGameResultContainer();
     }
 
     initHandler();
