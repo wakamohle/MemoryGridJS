@@ -4,6 +4,7 @@
 function initMemoryGrid() {
 
     var BTN_ID_PREFIX = "grdBtn";
+    var GRID_CONTAINER_ID = "memoryGridContainer";
 
     var NWLN = "\n";
 
@@ -19,8 +20,8 @@ function initMemoryGrid() {
     var BTNROW_TAG = '<div class="btn-group"></div>';
     var BTN_TAG = '<button class="btn"></button>';
 
-    var WIN_GAME_HTML = '<strong>Congratulations!</strong> You won this game!';
-    var TRY_AGAIN_HTML = '<strong>Try again!</strong> Sequence was not correct';
+    var WIN_GAME_HTML = '<strong>Congratulations!</strong> You win this game!';
+    var TRY_AGAIN_HTML = '<strong>Try again!</strong> Sequence is not correct';
 
     var allButtons;
     var requiredSequence;
@@ -29,8 +30,8 @@ function initMemoryGrid() {
     var flashUsrSqnc;
     var flashTimeouts;
 
-    var lgTx = (txt) => $("#logArea").append(txt);
-    var toggleLogArea = () => $("#logArea").toggleClass("d-none");
+    var lgTx = (txt) => $("#logArea").prepend(txt);
+    var toggleLogArea = () => $("#logRow").toggleClass("d-none");
 
     var elmId = (elm) =>
         typeof (elm) === typeof (undefined) ?
@@ -39,23 +40,21 @@ function initMemoryGrid() {
 
     var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
     var disableHintButton = () => $("#btnHint").prop("disabled", true);
-    var disableCheckButton = () => $("#btnCheck").prop("disabled", true);
     var getGameResultParams = (wasSuccess) =>
         wasSuccess
             ? { "class": WIN_GAME_CLASS, "html": WIN_GAME_HTML }
             : { "class": TRY_AGAIN_CLASS, "html": TRY_AGAIN_HTML };
 
     var memGridParameters = {
-        gridContainerID: "memoryGridContainer",
         gridRows: 4,
         gridColumns: 4,
-        btnWidth: "100px",
-        btnHeight: "100px",
+        btnWidth: "15vmin",
+        btnHeight: "15vmin",
         showBtnText: true,
         flashTime: 500,
         flashDelay: 500,
         flashes: 1,
-        toMemorize: 1,
+        toMemorize: 3,
         userCheckDelay: 0
     };
 
@@ -76,7 +75,7 @@ function initMemoryGrid() {
 
     function initializeGrid() {
         //Extract parameters
-        let gridContainerID = memGridParameters.gridContainerID;
+        let gridContainerID = GRID_CONTAINER_ID;
         let btnWidth = memGridParameters.btnWidth;
         let btnHeight = memGridParameters.btnHeight;
         let gridRows = memGridParameters.gridRows;
@@ -182,11 +181,12 @@ function initMemoryGrid() {
     }
 
     function printRequiredSequence() {
-        lgTx("Required sequence" + NWLN);
+        lgTx(NWLN + "Required sequence");
+        let sqnc = "";
         requiredSequence.forEach(element => {
-            lgTx(elmId(element) + ",");
+            sqnc += elmId(element) + ",";
         });
-        lgTx(NWLN);
+        lgTx(NWLN + sqnc);
     }
 
     function hintHandler() {
@@ -203,20 +203,17 @@ function initMemoryGrid() {
         //Re-enable buttons in case they were disabled
         $("#btnReset").prop("disabled", false);
         $("#btnHint").prop("disabled", false);
-        $("#btnCheck").prop("disabled", false);
 
         //Prevent listener duplication
         unlistenGridButtons();
         $("#btnReset").off("click", initHandler);
         $("#btnHint").off("click", hintHandler);
-        $("#btnCheck").off("click", checkUserSequence);
         $("#btnToggleLog").off("click", toggleLogArea);
 
         //Add button listeners
         allButtons.click(memButtonClickHandler);
         $("#btnReset").click(initHandler);
         $("#btnHint").click(hintHandler);
-        $("#btnCheck").click(checkUserSequence);
         $("#btnToggleLog").click(toggleLogArea);
 
     }
@@ -234,14 +231,14 @@ function initMemoryGrid() {
 
             if (typeof (reqSq) === typeof (undefined)) {
                 finalResult = false;
-                lgTx(usrSqId + ",XX :(" + NWLN);
+                lgTx(NWLN + usrSqId + ",XX :(");
                 markBtnErr(usrSq);
             } else if (reqSqId === usrSqId) {
-                lgTx(usrSqId + "," + reqSqId + " :)" + NWLN);
+                lgTx(NWLN + usrSqId + "," + reqSqId + " :)");
                 markBtnOk(usrSq);
             } else {
                 finalResult = false;
-                lgTx(usrSqId + "," + reqSqId + " :(" + NWLN);
+                lgTx(NWLN + usrSqId + "," + reqSqId + " :(");
                 markBtnErr(usrSq);
                 markBtnErr(reqSq);
 
@@ -252,7 +249,7 @@ function initMemoryGrid() {
         for (; seqIdx <= reqMaxIdx; seqIdx++) {
             finalResult = false;
             reqSq = requiredSequence[seqIdx];
-            lgTx("XX, " + elmId(reqSq) + " :(" + NWLN);
+            lgTx(NWLN + "XX, " + elmId(reqSq) + " :(");
             markBtnErr(reqSq);
         }
 
@@ -274,7 +271,7 @@ function initMemoryGrid() {
     }
 
     function memButtonClickHandler() {
-        lgTx($(this).attr("id") + " was clicked" + NWLN);
+        lgTx(NWLN + $(this).attr("id") + " was clicked");
         userSequence.push($(this));
         if (userSequence.length == requiredSequence.length) {
             let tmOut = setTimeout(timeUp, memGridParameters.userCheckDelay);
@@ -284,13 +281,13 @@ function initMemoryGrid() {
 
     function timeUp() {
         unlistenGridButtons();
-        disableCheckButton();
         disableHintButton();
         checkUserSequence();
     }
 
     function clearControls() {
         $("#logArea").text("");
+        $("#logRow").addClass("d-none");
         clearGridBtnStyle(allButtons);
     }
 
@@ -322,8 +319,13 @@ function initMemoryGrid() {
 
     }
 
+    function initializeButtonBar() {
+        $("#btnStart").remove();
+        $("#btnBar").removeClass("d-none");
+    }
+    
     function initHandler() {
-
+        initializeButtonBar();
         initializeGrid();
         setButtonsLabel();
         clearControls();
@@ -332,7 +334,11 @@ function initMemoryGrid() {
         initializeGameResultContainer();
     }
 
-    initHandler();
+    function startMemoryGrid() {
+        $("#btnStart").click(initHandler)
+    }
+
+    startMemoryGrid();
     return {
         "allButtons": allButtons,
         "requiredSequence": requiredSequence

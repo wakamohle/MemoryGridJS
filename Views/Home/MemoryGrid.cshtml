@@ -2,24 +2,24 @@
     ViewData["Title"] = "Memory grid";
 }
 
-<h1 class="text-center">Memory Grid</h1>
+<p class="h3 text-center">Memory Grid</p>
 <div class="row">
-    <div class="col">
-        <div class="btn-group">
+    <div class="col text-center">
+        <button id="btnStart" class="btn btn-primary">Start</button>
+        <div id="btnBar" class="btn-group d-none">
             <button id="btnReset" class="btn btn-primary">Reset</button>
-            <button id="btnToggleLog" class="btn btn-primary">Log</button>            
+            <button id="btnToggleLog" class="btn btn-primary d-none">Log</button>            
             <button id="btnHint" class="btn btn-primary">Hint</button>
-            <button id="btnCheck" class="btn btn-primary">Check</button>
         </div>
     </div>
 </div>
-<div class="row">
-    <div id="memoryGridContainer" class="col">
-        <p>Grid goes here</p>
+<div class="row py-2">
+    <div id="memoryGridContainer" class="col text-center">
+        <p class="h6">Click start button</p>
     </div>
-    <div class="col">
-        <textarea id="logArea" class="form-control small d-none" readonly="readonly" rows="15" ></textarea>
-    </div>
+</div>
+<div id="logRow" class="row d-none">
+    <textarea id="logArea" class="w-100" readonly="readonly" rows="2" ></textarea>
 </div>
 
 @section Scripts{
