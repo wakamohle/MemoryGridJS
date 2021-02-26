@@ -3,7 +3,9 @@
 
 function initMemoryGrid() {
 
-    var BTN_ID_PREFIX = "grdBtn";
+    var BTN_MEM_GRID_CLASS = "btn-mem-grid";
+    var BTN_MEM_GRID_CLASS_SELECTOR = "." + BTN_MEM_GRID_CLASS;
+    var BTN_MEM_GRID_IDX_KEY = "mem-grid-idx";
     var GRID_CONTAINER_ID = "memoryGridContainer";
 
     var NWLN = "\n";
@@ -13,7 +15,7 @@ function initMemoryGrid() {
     var BASE_CLASS = "btn-dark";
     var ERR_CLASS = "btn-danger";
     var OK_CLASS = "btn-success";
-    var FLASH_CLASS = "btn-info";
+    var INFO_CLASS = "btn-info";
 
     var GAME_RESULT_TAG = '<div class="alert" role="alert"></div>';
     var BTNGRID_TAG = '<div class="btn-group-vertical"></div>';
@@ -36,7 +38,7 @@ function initMemoryGrid() {
     var elmId = (elm) =>
         typeof (elm) === typeof (undefined) ?
             ""
-            : elm.attr("id").replace(BTN_ID_PREFIX, "");
+            : elm.data(BTN_MEM_GRID_IDX_KEY).toString().padStart(2, 0);
 
     var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
     var disableHintButton = () => $("#btnHint").prop("disabled", true);
@@ -80,6 +82,7 @@ function initMemoryGrid() {
         let btnHeight = memGridParameters.btnHeight;
         let gridRows = memGridParameters.gridRows;
         let gridColumns = memGridParameters.gridColumns;
+        let showBtnText = memGridParameters.showBtnText;
 
         //If grid container ID is not valid, throw error
         if (typeof gridContainerID !== typeof String()) {
@@ -102,6 +105,7 @@ function initMemoryGrid() {
         grdContainer.append(btnGrid);
 
 
+
         //Build button rows
         for (let btnRwIdx = gridRows; btnRwIdx > 0; --btnRwIdx) {
             //Initialize button row
@@ -110,19 +114,22 @@ function initMemoryGrid() {
             for (let btnClIdx = gridColumns; btnClIdx > 0; --btnClIdx) {
                 //Initialize individual grid button
                 let memBtn = $(BTN_TAG)
-                    .prop("id", BTN_ID_PREFIX + (btnIdx++).toString().padStart(2, 0)) //Set button id
+                    .data(BTN_MEM_GRID_IDX_KEY, btnIdx) //Set button id
                     .addClass(BASE_CLASS) //Set default appearence
+                    .addClass(BTN_MEM_GRID_CLASS)//Class for selector
+                    .text(showBtnText ? btnIdx + 1 : "")
                     .width(btnWidth)
                     .height(btnHeight);
                 //Add button object to the row
                 btnRow.append(memBtn);
+                btnIdx++;
             }
             //Add finished row to the grid
             btnGrid.append(btnRow);
         }
 
         //Initialize allButtons array for easy access
-        allButtons = grdContainer.find("[id^=" + BTN_ID_PREFIX + "]");
+        allButtons = grdContainer.find(BTN_MEM_GRID_CLASS_SELECTOR);
 
     }
 
@@ -148,30 +155,30 @@ function initMemoryGrid() {
 
     function flashRequiredSequence() {
         clearGridBtnStyle(allButtons);
-        flashButtonSequence(flashReqSqnc, 0);
+        flashButtonSequence(flashReqSqnc, 0, INFO_CLASS);
     }
 
-    function flashButtonSequence(btnArray, btnIndx) {
+    function flashButtonSequence(btnArray, btnIndx, flashClass) {
         if (btnIndx == 0) {
             preventTimeOuts();
         }
         if (btnIndx < btnArray.length) {
             let btnFlash = btnArray[btnIndx];
-            flashButton(btnFlash, 0);
+            flashButton(btnFlash, 0, flashClass);
             let tmOut = setTimeout(() => {
-                flashButtonSequence(btnArray, btnIndx + 1);
+                flashButtonSequence(btnArray, btnIndx + 1, flashClass);
             }, memGridParameters.flashDelay);
             flashTimeouts.push(tmOut);
         }
     }
 
-    function flashButton(target, toggledTimes) {
+    function flashButton(target, toggledTimes, flashClass) {
 
-        target.toggleClass(FLASH_CLASS);
+        target.toggleClass(flashClass);
         target.toggleClass(BASE_CLASS);
         if (toggledTimes < 2) {
             let tmOut = setTimeout(() => {
-                flashButton(target, toggledTimes + 1);
+                flashButton(target, toggledTimes + 1, flashClass);
             }, memGridParameters.flashTime);
             flashTimeouts.push(tmOut);
         } else {
@@ -295,7 +302,7 @@ function initMemoryGrid() {
         grdBtn.removeClass(BASE_CLASS);
         grdBtn.removeClass(ERR_CLASS);
         grdBtn.removeClass(OK_CLASS);
-        grdBtn.removeClass(FLASH_CLASS);
+        grdBtn.removeClass(INFO_CLASS);
         grdBtn.addClass(BASE_CLASS);
     }
 
@@ -309,16 +316,6 @@ function initMemoryGrid() {
 
     }
 
-    function setButtonsLabel() {
-        let shwTxt = memGridParameters.showBtnText;
-        $(allButtons).text(
-            (btnIdx) =>
-                shwTxt ?
-                    btnIdx.toString().padStart(2, 0) :
-                    "");
-
-    }
-
     function initializeButtonBar() {
         $("#btnStart").remove();
         $("#btnBar").removeClass("d-none");
@@ -327,7 +324,6 @@ function initMemoryGrid() {
     function initHandler() {
         initializeButtonBar();
         initializeGrid();
-        setButtonsLabel();
         clearControls();
         addButtonListeners();
         initRequiredSequence();
