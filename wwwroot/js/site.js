@@ -158,31 +158,31 @@ function initMemoryGrid() {
         flashButtonSequence(flashReqSqnc, 0, INFO_CLASS);
     }
 
-    function flashButtonSequence(btnArray, btnIndx, flashClass) {
+    function flashButtonSequence(btnArray, btnIndx, flashClass, finalButtonClass) {
         if (btnIndx == 0) {
             preventTimeOuts();
         }
         if (btnIndx < btnArray.length) {
             let btnFlash = btnArray[btnIndx];
-            flashButton(btnFlash, 0, flashClass);
+            flashButton(btnFlash, 0, flashClass, finalButtonClass);
             let tmOut = setTimeout(() => {
-                flashButtonSequence(btnArray, btnIndx + 1, flashClass);
+                flashButtonSequence(btnArray, btnIndx + 1, flashClass, finalButtonClass);
             }, memGridParameters.flashDelay);
             flashTimeouts.push(tmOut);
         }
     }
 
-    function flashButton(target, toggledTimes, flashClass) {
+    function flashButton(target, toggledTimes, flashClass, finalButtonClass) {
 
         target.toggleClass(flashClass);
         target.toggleClass(BASE_CLASS);
         if (toggledTimes < 2) {
             let tmOut = setTimeout(() => {
-                flashButton(target, toggledTimes + 1, flashClass);
+                flashButton(target, toggledTimes + 1, flashClass, finalButtonClass);
             }, memGridParameters.flashTime);
             flashTimeouts.push(tmOut);
         } else {
-            clearGridBtnStyle(target);
+            clearGridBtnStyle(target, finalButtonClass);
         }
 
     }
@@ -230,6 +230,7 @@ function initMemoryGrid() {
         let seqIdx = 0;
         let reqMaxIdx = requiredSequence.length - 1;
         let reqSq, usrSq, reqSqId, usrSqId;
+        flashUsrSqnc = [];
         for (; seqIdx < userSequence.length; seqIdx++) {
             usrSq = userSequence[seqIdx];
             reqSq = seqIdx <= reqMaxIdx ? requiredSequence[seqIdx] : undefined;
@@ -239,13 +240,16 @@ function initMemoryGrid() {
             if (typeof (reqSq) === typeof (undefined)) {
                 finalResult = false;
                 lgTx(NWLN + usrSqId + ",XX :(");
+                flashUsrSqnc.push([{ "button": usrSq, "class": ERR_CLASS }]);
                 markBtnErr(usrSq);
             } else if (reqSqId === usrSqId) {
                 lgTx(NWLN + usrSqId + "," + reqSqId + " :)");
+                flashUsrSqnc.push([{ "button": usrSq, "class": OK_CLASS }]);
                 markBtnOk(usrSq);
             } else {
                 finalResult = false;
                 lgTx(NWLN + usrSqId + "," + reqSqId + " :(");
+                flashUsrSqnc.push([{ "button": usrSq, "class": ERR_CLASS }, { "button": reqSq, "class": OK_CLASS }]);
                 markBtnErr(usrSq);
                 markBtnErr(reqSq);
 
@@ -257,8 +261,11 @@ function initMemoryGrid() {
             finalResult = false;
             reqSq = requiredSequence[seqIdx];
             lgTx(NWLN + "XX, " + elmId(reqSq) + " :(");
+            flashUsrSqnc.push([{ "button": reqSq, "class": OK_CLASS }]);
             markBtnErr(reqSq);
         }
+
+        flashUsrSqnc.forEach(sqGrp => sqGrp.forEach(() => flashButtonSequence));
 
         let rslt = getGameResultParams(finalResult);
         showGameResult(rslt);
@@ -266,15 +273,11 @@ function initMemoryGrid() {
     }
 
     function markBtnOk(memBtn) {
-        clearGridBtnStyle(memBtn);
-        memBtn.removeClass(BASE_CLASS);
-        memBtn.addClass(OK_CLASS);
+        clearGridBtnStyle(memBtn, OK_CLASS);
     }
 
     function markBtnErr(memBtn) {
-        clearGridBtnStyle(memBtn);
-        memBtn.removeClass(BASE_CLASS);
-        memBtn.addClass(ERR_CLASS);
+        clearGridBtnStyle(memBtn, ERR_CLASS);
     }
 
     function memButtonClickHandler() {
@@ -298,12 +301,12 @@ function initMemoryGrid() {
         clearGridBtnStyle(allButtons);
     }
 
-    function clearGridBtnStyle(grdBtn) {
+    function clearGridBtnStyle(grdBtn, finalButtonClass=BASE_CLASS) {
         grdBtn.removeClass(BASE_CLASS);
         grdBtn.removeClass(ERR_CLASS);
         grdBtn.removeClass(OK_CLASS);
         grdBtn.removeClass(INFO_CLASS);
-        grdBtn.addClass(BASE_CLASS);
+        grdBtn.addClass(finalButtonClass);
     }
 
     function preventTimeOuts() {
@@ -320,7 +323,7 @@ function initMemoryGrid() {
         $("#btnStart").remove();
         $("#btnBar").removeClass("d-none");
     }
-    
+
     function initHandler() {
         initializeButtonBar();
         initializeGrid();
