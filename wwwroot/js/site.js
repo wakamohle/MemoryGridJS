@@ -3,6 +3,10 @@
 
 function initMemoryGrid() {
 
+    var ResultParams = (btnClass, rsltHtml) => { return { "class": btnClass, "html": rsltHtml } }
+    var FlashParam = (btnTarget, btnClass, blinkTime) => { return { "target": btnTarget, "class": btnClass, "blinkTime": blinkTime } };
+    var FlashSequenceParams = (flashParams, finalButtonClass) => { return { "flashParams": flashParams, "finalButtonClass": finalButtonClass }; };
+
     var BTN_MEM_GRID_CLASS = "btn-mem-grid";
     var BTN_MEM_GRID_CLASS_SELECTOR = "." + BTN_MEM_GRID_CLASS;
     var BTN_MEM_GRID_IDX_KEY = "mem-grid-idx";
@@ -37,15 +41,15 @@ function initMemoryGrid() {
 
     var elmId = (elm) =>
         typeof (elm) === typeof (undefined) ?
-            ""
-            : elm.data(BTN_MEM_GRID_IDX_KEY).toString().padStart(2, 0);
+            -1
+            : elm.data(BTN_MEM_GRID_IDX_KEY);
 
     var unlistenGridButtons = () => allButtons.off("click", memButtonClickHandler);
     var disableHintButton = () => $("#btnHint").prop("disabled", true);
     var getGameResultParams = (wasSuccess) =>
         wasSuccess
-            ? { "class": WIN_GAME_CLASS, "html": WIN_GAME_HTML }
-            : { "class": TRY_AGAIN_CLASS, "html": TRY_AGAIN_HTML };
+            ? ResultParams(WIN_GAME_CLASS, WIN_GAME_HTML)
+            : ResultParams(TRY_AGAIN_CLASS, TRY_AGAIN_HTML);
 
     var memGridParameters = {
         gridRows: 4,
@@ -53,10 +57,12 @@ function initMemoryGrid() {
         btnWidth: "15vmin",
         btnHeight: "15vmin",
         showBtnText: true,
-        flashTime: 500,
-        flashDelay: 500,
+        flashDelay: 0,
         flashes: 1,
-        toMemorize: 3,
+        blinkTimeOn: 950,
+        blinkTimeOff: 100,
+        blinks: 2,
+        toMemorize: 2,
         userCheckDelay: 0
     };
 
@@ -138,52 +144,82 @@ function initMemoryGrid() {
         let tmpAllBtn = allButtons.slice();
         let currBtn, tmpIdx;
         requiredSequence = [];
-        userSequence = [];
         for (let btnIdx = 1; btnIdx <= memGridParameters.toMemorize; btnIdx++) {
             tmpIdx = Math.floor(Math.random() * tmpAllBtn.length);
             currBtn = $(tmpAllBtn.splice(tmpIdx, 1));
-            requiredSequence.push(currBtn);
+            requiredSequence.push(FlashParam(currBtn, INFO_CLASS));
         }
 
-        flashReqSqnc = [];
+        let reqFlashes = [];
         for (let flshOc = memGridParameters.flashes; flshOc > 0; --flshOc) {
-            flashReqSqnc = flashReqSqnc.concat(requiredSequence);
+            reqFlashes = reqFlashes.concat(requiredSequence);
         }
-        showRequiredSequence();
+        flashReqSqnc = FlashSequenceParams(reqFlashes.slice());
 
+    }
+    function initUserSequence() {
+        userSequence = [];
     }
 
     function flashRequiredSequence() {
         clearGridBtnStyle(allButtons);
-        flashButtonSequence(flashReqSqnc, 0, INFO_CLASS);
+        flashButtonSequence(flashReqSqnc, 0);
     }
 
-    function flashButtonSequence(btnArray, btnIndx, flashClass, finalButtonClass) {
+    function flashButtonSequence(flashSequenceParams, btnIndx) {
+        let flashParams = flashSequenceParams.flashParams;
+        let finalButtonClass = flashSequenceParams.finalButtonClass;
         if (btnIndx == 0) {
             preventTimeOuts();
         }
-        if (btnIndx < btnArray.length) {
-            let btnFlash = btnArray[btnIndx];
-            flashButton(btnFlash, 0, flashClass, finalButtonClass);
+        if (btnIndx < flashParams.length) {
+            let flashParam = flashParams[btnIndx];
+            flashButton(flashParam, finalButtonClass);
             let tmOut = setTimeout(() => {
-                flashButtonSequence(btnArray, btnIndx + 1, flashClass, finalButtonClass);
+                flashButtonSequence(flashSequenceParams, btnIndx + 1);
             }, memGridParameters.flashDelay);
             flashTimeouts.push(tmOut);
         }
     }
 
-    function flashButton(target, toggledTimes, flashClass, finalButtonClass) {
+    function flashButton(flashParam, finalButtonClass) {
+        let blinks = memGridParameters.blinks;
+        let blinkTimeOff = memGridParameters.blinkTimeOff;
+        let blinkTimeOn = memGridParameters.blinkTimeOn;
+        let _trgclass = "";
+        flashParam = (!Array.isArray(flashParam)) ? [flashParam] : flashParam;
 
-        target.toggleClass(flashClass);
-        target.toggleClass(BASE_CLASS);
-        if (toggledTimes < 2) {
-            let tmOut = setTimeout(() => {
-                flashButton(target, toggledTimes + 1, flashClass, finalButtonClass);
-            }, memGridParameters.flashTime);
-            flashTimeouts.push(tmOut);
-        } else {
-            clearGridBtnStyle(target, finalButtonClass);
-        }
+        flashParam.forEach(fprm => {
+            let target = fprm["target"];
+            let flashClass = fprm["class"];
+            let toggledTimes = fprm["toggledTimes"];
+            target.toggleClass(flashClass);
+            target.toggleClass(BASE_CLASS);
+
+            _trgclass += target.attr("class");
+            console.log(elmId(target), toggledTimes, "toggle", _trgclass)
+
+            if (toggledTimes < (blinks * 2)) {
+                let blinkTime = !(toggledTimes % 2) * blinkTimeOff
+                    + (toggledTimes & 1) * blinkTimeOn;
+                console.log(elmId(target), toggledTimes, "promise-blink", _trgclass, blinkTime)
+                fprm["toggledTimes"]++;
+                let tmOut = setTimeout(() => {
+                    flashButton(fprm, finalButtonClass);
+                }, blinkTime);
+                flashTimeouts.push(tmOut);
+            } else {
+                console.log(elmId(target), toggledTimes, "clear", _trgclass)
+                fprm["toggledTimes"] = 1;
+                clearGridBtnStyle(target, finalButtonClass);
+            }
+        });
+        // else {
+        //     console.log("clear", toggledTimes, _trgclass)
+        //     flashParam.forEach(fprm => {
+        //         let target = fprm["target"];
+        //     });
+        // }
 
     }
 
@@ -191,7 +227,7 @@ function initMemoryGrid() {
         lgTx(NWLN + "Required sequence");
         let sqnc = "";
         requiredSequence.forEach(element => {
-            sqnc += elmId(element) + ",";
+            sqnc += elmId(element.target) + ",";
         });
         lgTx(NWLN + sqnc);
     }
@@ -233,7 +269,7 @@ function initMemoryGrid() {
         flashUsrSqnc = [];
         for (; seqIdx < userSequence.length; seqIdx++) {
             usrSq = userSequence[seqIdx];
-            reqSq = seqIdx <= reqMaxIdx ? requiredSequence[seqIdx] : undefined;
+            reqSq = seqIdx <= reqMaxIdx ? requiredSequence[seqIdx]["target"] : undefined;
             usrSqId = elmId(usrSq);
             reqSqId = elmId(reqSq);
 
@@ -265,7 +301,7 @@ function initMemoryGrid() {
             markBtnErr(reqSq);
         }
 
-        flashUsrSqnc.forEach(sqGrp => sqGrp.forEach(() => flashButtonSequence));
+        // flashUsrSqnc.forEach(sqGrp => sqGrp.forEach(() => flashButtonSequence));
 
         let rslt = getGameResultParams(finalResult);
         showGameResult(rslt);
@@ -301,7 +337,7 @@ function initMemoryGrid() {
         clearGridBtnStyle(allButtons);
     }
 
-    function clearGridBtnStyle(grdBtn, finalButtonClass=BASE_CLASS) {
+    function clearGridBtnStyle(grdBtn, finalButtonClass = BASE_CLASS) {
         grdBtn.removeClass(BASE_CLASS);
         grdBtn.removeClass(ERR_CLASS);
         grdBtn.removeClass(OK_CLASS);
@@ -330,7 +366,10 @@ function initMemoryGrid() {
         clearControls();
         addButtonListeners();
         initRequiredSequence();
+        initUserSequence();
         initializeGameResultContainer();
+        showRequiredSequence();
+
     }
 
     function startMemoryGrid() {
