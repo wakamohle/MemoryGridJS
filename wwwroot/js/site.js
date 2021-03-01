@@ -1,7 +1,7 @@
 ﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
-function initMemoryGrid() {
+function MemoryGrid($) {
 
     var ResultParams = (btnClass, rsltHtml) => { return { "class": btnClass, "html": rsltHtml } };
     var Sequence = (actions = [], config = {}) => { return { "actions": actions, "config": config } };
@@ -9,6 +9,15 @@ function initMemoryGrid() {
     var BlinkBase = (btnTarget, btnClass) => { return { "target": btnTarget, "class": btnClass } };
     var BlinkMultiParams = (btnBlinkBases, blinkTime) => { return SequenceAction(setButtonClass, { "blinkBases": btnBlinkBases }, blinkTime) } // { return { "blinkBases": btnBlinkBases, blinkTime: blinkTime } }
     var BlinkParam = (btnTarget, btnClass, blinkTime) => { return BlinkMultiParams([BlinkBase(btnTarget, btnClass)], blinkTime) }
+
+    function Form (size, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
+        this.size = size;
+        this.hideButtonNumber = hideButtonNumber;
+        this.blinkDuration = blinkDuration;
+        this.sequenceLength = sequenceLength;
+        this.delayAfterFinish = delayAfterFinish;
+    
+    }
 
     var BTN_MEM_GRID_CLASS = "btn-mem-grid";
     var BTN_MEM_GRID_CLASS_SELECTOR = "." + BTN_MEM_GRID_CLASS;
@@ -38,6 +47,7 @@ function initMemoryGrid() {
     var flashReqSqnc;
     var flashUsrSqnc;
     var flashTimeouts;
+    var memGridParameters;
 
     var lgTx = (txt) => $("#logArea").prepend(txt);
     var toggleLogArea = () => $("#logRow").toggleClass("d-none");
@@ -53,21 +63,6 @@ function initMemoryGrid() {
         wasSuccess
             ? ResultParams(WIN_GAME_CLASS, WIN_GAME_HTML)
             : ResultParams(TRY_AGAIN_CLASS, TRY_AGAIN_HTML);
-
-    var memGridParameters = {
-        gridRows: 4,
-        gridColumns: 4,
-        btnWidth: "15vmin",
-        btnHeight: "15vmin",
-        showBtnText: true,
-        flashDelay: 36,
-        flashes: 1,
-        blinkTimeOn: 350,
-        blinkTimeOff: 150,
-        blinks: 2,
-        toMemorize: 4,
-        userCheckDelay: 500
-    };
 
     function showGameResult(resultParams) {
         let alertClass, alertHTML;
@@ -357,7 +352,25 @@ function initMemoryGrid() {
         $("#btnBar").removeClass("d-none");
     }
 
+    function mapMemoryGridForm(){
+        memGridParameters = {
+            gridRows: 4,
+            gridColumns: 4,
+            btnWidth: "15vmin",
+            btnHeight: "15vmin",
+            showBtnText: true,
+            flashDelay: 0,
+            flashes: 1,
+            blinkTimeOn: 500,
+            blinkTimeOff: 500,
+            blinks: 1,
+            toMemorize: 1,
+            userCheckDelay: 0
+        }
+    }
+
     function initHandler() {
+        mapMemoryGridForm();
         initializeButtonBar();
         initializeGrid();
         clearControls();
@@ -372,10 +385,7 @@ function initMemoryGrid() {
         $("#btnStart").click(initHandler)
     }
 
-    startMemoryGrid();
-    return {
-        "allButtons": allButtons,
-    }
+    startMemoryGrid();  
 
 }
 
