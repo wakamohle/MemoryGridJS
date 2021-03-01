@@ -348,7 +348,8 @@ function MemoryGrid($) {
     }
 
     function initializeButtonBar() {
-        $("#btnStart").remove();
+        $("#memoryGridForm").addClass("d-none");
+        $("#memoryGridRow").removeClass("d-none");
         $("#btnBar").removeClass("d-none");
     }
 
