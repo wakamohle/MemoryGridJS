@@ -10,8 +10,8 @@ function MemoryGrid($) {
     var BlinkMultiParams = (btnBlinkBases, blinkTime) => { return SequenceAction(setButtonClass, { "blinkBases": btnBlinkBases }, blinkTime) } // { return { "blinkBases": btnBlinkBases, blinkTime: blinkTime } }
     var BlinkParam = (btnTarget, btnClass, blinkTime) => { return BlinkMultiParams([BlinkBase(btnTarget, btnClass)], blinkTime) }
 
-    function Form(size, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
-        this.size = size;
+    function Form(dimensions, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
+        this.dimensions = dimensions;
         this.hideButtonNumber = hideButtonNumber;
         this.blinkDuration = blinkDuration;
         this.sequenceLength = sequenceLength;
@@ -235,18 +235,21 @@ function MemoryGrid($) {
         //Re-enable buttons in case they were disabled
         $("#btnReset").prop("disabled", false);
         $("#btnHint").prop("disabled", false);
+        $("#btnChange").prop("disabled", false);        
 
         //Prevent listener duplication
         unlistenGridButtons();
         $("#btnReset").off("click", initHandler);
         $("#btnHint").off("click", hintHandler);
         $("#btnToggleLog").off("click", toggleLogArea);
+        $("#btnChange").off("click", showForm);
 
         //Add button listeners
         allButtons.click(memButtonClickHandler);
         $("#btnReset").click(initHandler);
         $("#btnHint").click(hintHandler);
         $("#btnToggleLog").click(toggleLogArea);
+        $("#btnChange").click(showForm);
 
     }
 
@@ -347,10 +350,16 @@ function MemoryGrid($) {
 
     }
 
-    function initializeButtonBar() {
+    function showGrid() {
         $("#memoryGridForm").addClass("d-none");
         $("#memoryGridRow").removeClass("d-none");
         $("#btnBar").removeClass("d-none");
+        $("#btnCancelChange").prop("disabled", false);
+    }
+    function showForm() {
+        $("#memoryGridForm").removeClass("d-none");
+        $("#memoryGridRow").addClass("d-none");
+        $("#btnBar").addClass("d-none");
     }
 
     function mapMemoryGridForm() {
@@ -372,7 +381,7 @@ function MemoryGrid($) {
 
     function initHandler() {
         mapMemoryGridForm();
-        initializeButtonBar();
+        showGrid();
         initializeGrid();
         clearControls();
         initRequiredSequence();
@@ -382,15 +391,23 @@ function MemoryGrid($) {
 
     }
 
+    function dimensionChangeHandler(e) {
+        let selValue = $(e.target).val();
+        $("[name=sequenceLength]").prop("max", Math.pow(selValue,2)).val(selValue);                              
+
+    }
+
     function startMemoryGrid() {
-        $("#btnStart").click(initHandler)
+        $("#btnStart").click(initHandler);
+        $("#btnCancelChange").click(showGrid);
+        $("[name=dimensions]").change(dimensionChangeHandler);
     }
 
     startMemoryGrid();
 
     //TODO: #6 Review return value of the MemoryGrid class
     return memGridParameters;
-    
+
 
 }
 

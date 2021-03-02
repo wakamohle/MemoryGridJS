@@ -6,7 +6,10 @@
 <form id="memoryGridForm" >
     <div class="form-row py-2">
         <div class="col text-center">
-            <button id="btnStart" class="btn btn-primary" type="button">Start</button>
+            <div class="btn-group">
+                <button id="btnStart" class="btn btn-primary" type="button">Start</button>
+                <button id="btnCancelChange" class="btn btn-primary" type="button" disabled>Back</button>
+            </div>
         </div>
     </div>
     <div class="form-row py-2">
@@ -14,30 +17,29 @@
         <label class="form-check-label" for="hideButtonNumber">
             <input type="checkbox" 
             class="form-check-input" 
-            id="hideButtonNumber" 
             name="hideButtonNumber">Hide button numbers
         </label>
         </div>
     </div>
     <div class="form-row py-2">
         <div class="col form-group" >
-                <label for="size">Grid size:</label>
-                <select name="size" id="size" class="form-control custom-select">
+                <label for="dimensions">Dimensions:</label>
+                <select name="dimensions" class="form-control custom-select">
                     <option value="2">2 x 2</option>
                     <option value="3">3 x 3</option>
-                    <option selected value="4">4 x 4</option>
+                    <option value="4" selected>4 x 4</option>
                     <option value="5">5 x 5</option>
                 </select>
         </div>
         <div class="col form-group">
             <label for="sequenceLength">Length:</label>
-            <input class="form-control" type="number" id="sequenceLength" name="sequenceLength" min="1" max="16" value="4" />
+            <input class="form-control" type="number" name="sequenceLength" min="1" max="16" value="4" />
         </div>
     </div>
     <div class="form-row py-2">
         <div class="col form-group" >
                 <label for="blinkDuration">Blink speed:</label>
-                <select name="blinkDuration" id="blinkDuration" class="form-control custom-select">
+                <select name="blinkDuration" class="form-control custom-select">
                     <option value="fast">Fast</option>
                     <option selected value="average">Average</option>
                     <option value="slow">Slow</option>
@@ -45,7 +47,7 @@
         </div>
         <div class="col form-group">
             <label for="delayAfterFinish">Delay result:</label>
-            <select name="delayAfterFinish" id="delayAfterFinish" class="form-control custom-select">
+            <select name="delayAfterFinish" class="form-control custom-select">
                 <option selected value="none">None</option>
                 <option value="short">Short</option>
                 <option value="long">Long</option>
@@ -56,7 +58,8 @@
 <div class="row">
     <div class="col text-center">
         <div id="btnBar" class="btn-group d-none">
-            <button id="btnReset" class="btn btn-primary">Reset</button>
+            <button id="btnReset" class="btn btn-primary">New</button>
+            <button id="btnChange" class="btn btn-primary">Change</button>
             <button id="btnToggleLog" class="btn btn-primary d-none">Log</button>            
             <button id="btnHint" class="btn btn-primary">Hint</button>
         </div>
