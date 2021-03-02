@@ -10,13 +10,13 @@ function MemoryGrid($) {
     var BlinkMultiParams = (btnBlinkBases, blinkTime) => { return SequenceAction(setButtonClass, { "blinkBases": btnBlinkBases }, blinkTime) } // { return { "blinkBases": btnBlinkBases, blinkTime: blinkTime } }
     var BlinkParam = (btnTarget, btnClass, blinkTime) => { return BlinkMultiParams([BlinkBase(btnTarget, btnClass)], blinkTime) }
 
-    function Form (size, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
+    function Form(size, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
         this.size = size;
         this.hideButtonNumber = hideButtonNumber;
         this.blinkDuration = blinkDuration;
         this.sequenceLength = sequenceLength;
         this.delayAfterFinish = delayAfterFinish;
-    
+
     }
 
     var BTN_MEM_GRID_CLASS = "btn-mem-grid";
@@ -149,19 +149,19 @@ function MemoryGrid($) {
         }
 
         flashReqSqnc = Sequence();
-        let reqFlashes = [];
+        let reqSqActions = [];
         let flashDelay = memGridParameters.flashDelay;
         let blinks = memGridParameters.blinks;
         let blinkTimeOff = memGridParameters.blinkTimeOff;
         let blinkTimeOn = memGridParameters.blinkTimeOn;
         requiredButtonsOrder.forEach(reqSq => {
             for (let blks = blinks; blks > 0; --blks) {
-                reqFlashes.push(BlinkParam(reqSq, INFO_CLASS, blinkTimeOn));
-                reqFlashes.push(BlinkParam(reqSq, BASE_CLASS, blinkTimeOff));
+                reqSqActions.push(BlinkParam(reqSq, INFO_CLASS, blinkTimeOn));
+                reqSqActions.push(BlinkParam(reqSq, BASE_CLASS, blinkTimeOff));
             }
         });
         for (let flshOc = memGridParameters.flashes; flshOc > 0; --flshOc) {
-            flashReqSqnc.actions = flashReqSqnc.actions.concat(reqFlashes);
+            flashReqSqnc.actions = flashReqSqnc.actions.concat(reqSqActions);
             flashReqSqnc.actions.push(BlinkParam(allButtons, BASE_CLASS, flashDelay));
         }
         flashReqSqnc.actions.push(SequenceAction(addButtonListeners));
@@ -171,15 +171,12 @@ function MemoryGrid($) {
         userSequence = [];
     }
 
-    function flashRequiredSequence() {
-        clearGridBtnStyle(allButtons);
-        flashButtonSequence(flashReqSqnc);
-    }
 
-    function flashButtonSequence(blinkSequence) {
+    function playGridButtonSequence(gridButtonSequence) {
+        clearGridBtnStyle(allButtons);
         preventTimeOuts();
         unlistenGridButtons();
-        execSequenceAction(blinkSequence.actions, 0);
+        execSequenceAction(gridButtonSequence.actions, 0);
     }
 
     function execSequenceAction(sequenceActions, actionIdx) {
@@ -230,7 +227,7 @@ function MemoryGrid($) {
 
     function showRequiredSequence() {
         printRequiredSequence();
-        flashRequiredSequence();
+        playGridButtonSequence(flashReqSqnc);
     }
 
 
@@ -258,7 +255,10 @@ function MemoryGrid($) {
         let seqIdx = 0;
         let reqMaxIdx = requiredButtonsOrder.length - 1;
         let reqSq, usrSq, reqSqId, usrSqId;
-        flashUsrSqnc = [];
+        let usrSqActions = [];
+        let blinkTimeOff = memGridParameters.blinkTimeOff;
+        let blinkTimeOn = memGridParameters.blinkTimeOn;
+        flashUsrSqnc = Sequence();
         for (; seqIdx < userSequence.length; seqIdx++) {
             usrSq = userSequence[seqIdx];
             reqSq = seqIdx <= reqMaxIdx ? requiredButtonsOrder[seqIdx] : undefined;
@@ -268,18 +268,18 @@ function MemoryGrid($) {
             if (typeof (reqSq) === typeof (undefined)) {
                 finalResult = false;
                 lgTx(NWLN + usrSqId + ",XX :(");
-                flashUsrSqnc.push([{ "button": usrSq, "class": ERR_CLASS }]);
-                markBtnErr(usrSq);
+                usrSqActions.push(BlinkParam(usrSq, ERR_CLASS, blinkTimeOn));
             } else if (reqSqId === usrSqId) {
                 lgTx(NWLN + usrSqId + "," + reqSqId + " :)");
-                flashUsrSqnc.push([{ "button": usrSq, "class": OK_CLASS }]);
-                markBtnOk(usrSq);
+                usrSqActions.push(BlinkParam(usrSq, OK_CLASS, blinkTimeOn));
             } else {
+                let blinkBases = [];
                 finalResult = false;
                 lgTx(NWLN + usrSqId + "," + reqSqId + " :(");
-                flashUsrSqnc.push([{ "button": usrSq, "class": ERR_CLASS }, { "button": reqSq, "class": OK_CLASS }]);
-                markBtnErr(usrSq);
-                markBtnErr(reqSq);
+                blinkBases.push(BlinkBase(usrSq, ERR_CLASS));
+                blinkBases.push(BlinkBase(reqSq, INFO_CLASS));
+                usrSqActions.push(BlinkMultiParams(blinkBases, blinkTimeOn));
+                usrSqActions.push(BlinkParam(reqSq, BASE_CLASS, blinkTimeOff));
 
             }
 
@@ -289,14 +289,14 @@ function MemoryGrid($) {
             finalResult = false;
             reqSq = requiredButtonsOrder[seqIdx];
             lgTx(NWLN + "XX, " + elmId(reqSq) + " :(");
-            flashUsrSqnc.push([{ "button": reqSq, "class": OK_CLASS }]);
-            markBtnErr(reqSq);
+            usrSqActions.push(BlinkParam(reqSq, ERR_CLASS, blinkTimeOn));
         }
 
-        // flashUsrSqnc.forEach(sqGrp => sqGrp.forEach(() => flashButtonSequence));
-
         let rslt = getGameResultParams(finalResult);
-        showGameResult(rslt);
+        usrSqActions.push(SequenceAction(showGameResult, rslt))
+
+        flashUsrSqnc.actions = usrSqActions;
+        playGridButtonSequence(flashUsrSqnc);
 
     }
 
@@ -352,7 +352,7 @@ function MemoryGrid($) {
         $("#btnBar").removeClass("d-none");
     }
 
-    function mapMemoryGridForm(){
+    function mapMemoryGridForm() {
         memGridParameters = {
             gridRows: 4,
             gridColumns: 4,
@@ -361,10 +361,10 @@ function MemoryGrid($) {
             showBtnText: true,
             flashDelay: 0,
             flashes: 1,
-            blinkTimeOn: 500,
-            blinkTimeOff: 500,
+            blinkTimeOn: 400,
+            blinkTimeOff: 100,
             blinks: 1,
-            toMemorize: 1,
+            toMemorize: 3,
             userCheckDelay: 0
         }
     }
@@ -385,7 +385,11 @@ function MemoryGrid($) {
         $("#btnStart").click(initHandler)
     }
 
-    startMemoryGrid();  
+    startMemoryGrid();
+
+    //TODO: #6 Review return value of the MemoryGrid class
+    return memGridParameters;
+    
 
 }
 
