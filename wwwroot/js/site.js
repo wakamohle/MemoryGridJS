@@ -235,7 +235,7 @@ function MemoryGrid($) {
         //Re-enable buttons in case they were disabled
         $("#btnReset").prop("disabled", false);
         $("#btnHint").prop("disabled", false);
-        $("#btnChange").prop("disabled", false);        
+        $("#btnChange").prop("disabled", false);
 
         //Prevent listener duplication
         unlistenGridButtons();
@@ -259,8 +259,9 @@ function MemoryGrid($) {
         let reqMaxIdx = requiredButtonsOrder.length - 1;
         let reqSq, usrSq, reqSqId, usrSqId;
         let usrSqActions = [];
-        let blinkTimeOff = memGridParameters.blinkTimeOff;
-        let blinkTimeOn = memGridParameters.blinkTimeOn;
+        let playResultAnimation = memGridParameters.playResultAnimation ? 1 : 0;
+        let blinkTimeOff = memGridParameters.blinkTimeOff * playResultAnimation;
+        let blinkTimeOn = memGridParameters.blinkTimeOn * playResultAnimation;
         flashUsrSqnc = Sequence();
         for (; seqIdx < userSequence.length; seqIdx++) {
             usrSq = userSequence[seqIdx];
@@ -375,7 +376,8 @@ function MemoryGrid($) {
             blinkTimeOff: 100,
             blinks: 1,
             toMemorize: 3,
-            userCheckDelay: 0
+            userCheckDelay: 0,
+            playResultAnimation: true
         }
     }
 
@@ -393,7 +395,7 @@ function MemoryGrid($) {
 
     function dimensionChangeHandler(e) {
         let selValue = $(e.target).val();
-        $("[name=sequenceLength]").prop("max", Math.pow(selValue,2)).val(selValue);                              
+        $("[name=sequenceLength]").prop("max", Math.pow(selValue, 2)).val(selValue);
 
     }
 
