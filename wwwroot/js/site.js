@@ -10,14 +10,7 @@ function MemoryGrid($) {
     var BlinkMultiParams = (btnBlinkBases, blinkTime) => { return SequenceAction(setButtonClass, { "blinkBases": btnBlinkBases }, blinkTime) } // { return { "blinkBases": btnBlinkBases, blinkTime: blinkTime } }
     var BlinkParam = (btnTarget, btnClass, blinkTime) => { return BlinkMultiParams([BlinkBase(btnTarget, btnClass)], blinkTime) }
 
-    function Form(dimensions, hideButtonNumber, blinkDuration, sequenceLength, delayAfterFinish) {
-        this.dimensions = dimensions;
-        this.hideButtonNumber = hideButtonNumber;
-        this.blinkDuration = blinkDuration;
-        this.sequenceLength = sequenceLength;
-        this.delayAfterFinish = delayAfterFinish;
 
-    }
 
     var BTN_MEM_GRID_CLASS = "btn-mem-grid";
     var BTN_MEM_GRID_CLASS_SELECTOR = "." + BTN_MEM_GRID_CLASS;
@@ -356,14 +349,52 @@ function MemoryGrid($) {
         $("#memoryGridRow").removeClass("d-none");
         $("#btnBar").removeClass("d-none");
         $("#btnCancelChange").prop("disabled", false);
+        $("alerts").removeClass("d-none");
     }
     function showForm() {
         $("#memoryGridForm").removeClass("d-none");
         $("#memoryGridRow").addClass("d-none");
         $("#btnBar").addClass("d-none");
+        $("alerts").addClass("d-none");
     }
 
     function mapMemoryGridForm() {
+        let blinkSpeedMap = { "fast": [150, 150], "average": [400, 100], "slow": [800, 200] };
+        let delayAfterFinishMap = { "none": 0, "short": 750, "long": 2000 };
+        let frm = {
+            hideButtonNumber: false,
+            playResultAnimation: false,
+            dimensions: 0,
+            sequenceLength: 0,
+            blinkSpeed: "",
+            delayAfterFinish: ""
+        }
+
+        $('#memoryGridForm').serializeArray().forEach(
+            elm => frm[elm.name] = elm.value === "on" ? true : elm.value);
+
+        let mgprm = {
+            btnWidth: "15vmin",
+            btnHeight: "15vmin",
+            flashDelay: 0,
+            flashes: 1,
+            blinks: 1
+        }
+        mgprm["gridRows"] = mgprm["gridColumns"] = frm["dimensions"];
+        mgprm["showBtnText"] = !frm["hideButtonNumber"];
+        mgprm["blinkTimeOn"] = blinkSpeedMap[frm["blinkSpeed"]][0];
+        mgprm["blinkTimeOff"] = blinkSpeedMap[frm["blinkSpeed"]][1];
+        mgprm["toMemorize"] = frm["sequenceLength"]
+        mgprm["userCheckDelay"] = delayAfterFinishMap[frm["delayAfterFinish"]];
+        mgprm["playResultAnimation"] = frm["playResultAnimation"];
+
+        memGridParameters = mgprm;
+
+    }
+
+    //TODO: #8 Delete auxiliary function _mapMemoryGridForm
+    function _mapMemoryGridForm() {
+
         memGridParameters = {
             gridRows: 4,
             gridColumns: 4,
