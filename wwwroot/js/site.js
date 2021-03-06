@@ -392,25 +392,6 @@ function MemoryGrid($) {
 
     }
 
-    //TODO: #8 Delete auxiliary function _mapMemoryGridForm
-    function _mapMemoryGridForm() {
-
-        memGridParameters = {
-            gridRows: 4,
-            gridColumns: 4,
-            btnWidth: "15vmin",
-            btnHeight: "15vmin",
-            showBtnText: true,
-            flashDelay: 0,
-            flashes: 1,
-            blinkTimeOn: 400,
-            blinkTimeOff: 100,
-            blinks: 1,
-            toMemorize: 3,
-            userCheckDelay: 0,
-            playResultAnimation: true
-        }
-    }
 
     function initHandler() {
         mapMemoryGridForm();
