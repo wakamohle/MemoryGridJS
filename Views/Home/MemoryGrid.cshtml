@@ -13,12 +13,23 @@
         </div>
     </div>
     <div class="form-row py-2">
-        <div class="col form-check text-center">
-        <label class="form-check-label" for="hideButtonNumber">
-            <input type="checkbox" 
-            class="form-check-input" 
-            name="hideButtonNumber">Hide button numbers
-        </label>
+        <div class="col">
+            <div class="form-check">
+            <label class="form-check-label" for="hideButtonNumber">
+                <input type="checkbox" 
+                class="form-check-input" 
+                name="hideButtonNumber">Hide button numbers
+            </label>
+            </div>
+        </div>
+        <div class="col">
+        <div class="form-check">
+            <label class="form-check-label" for="playResultAnimation">
+                <input type="checkbox" checked
+                class="form-check-input" 
+                name="playResultAnimation">Play result animation
+            </label>
+            </div>
         </div>
     </div>
     <div class="form-row py-2">
@@ -38,8 +49,8 @@
     </div>
     <div class="form-row py-2">
         <div class="col form-group" >
-                <label for="blinkDuration">Blink speed:</label>
-                <select name="blinkDuration" class="form-control custom-select">
+                <label for="blinkSpeed">Blink speed:</label>
+                <select name="blinkSpeed" class="form-control custom-select">
                     <option value="fast">Fast</option>
                     <option selected value="average">Average</option>
                     <option value="slow">Slow</option>
