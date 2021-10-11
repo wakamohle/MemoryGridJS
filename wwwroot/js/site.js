@@ -273,10 +273,10 @@ function MemoryGrid($) {
                 let blinkBases = [];
                 finalResult = false;
                 lgTx(NWLN + usrSqId + "," + reqSqId + " :(");
-                blinkBases.push(BlinkBase(usrSq, ERR_CLASS));
-                blinkBases.push(BlinkBase(reqSq, INFO_CLASS));
+                blinkBases.push(BlinkBase(usrSq, INFO_CLASS));
+                blinkBases.push(BlinkBase(reqSq, ERR_CLASS));
                 usrSqActions.push(BlinkMultiParams(blinkBases, blinkTimeOn));
-                usrSqActions.push(BlinkParam(reqSq, BASE_CLASS, blinkTimeOff));
+                // usrSqActions.push(BlinkParam(reqSq, BASE_CLASS, blinkTimeOff));
 
             }
 
@@ -420,7 +420,8 @@ function MemoryGrid($) {
     startMemoryGrid();
 
     //TODO: #6 Review return value of the MemoryGrid class
-    return memGridParameters;
+    return ()=>{};
+    
 
 
 }
